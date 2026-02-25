@@ -1,0 +1,16 @@
+include README.md
+include LICENSE
+include __version__.py
+include *.txt
+include *.cfg
+include *.ini
+recursive-include emis_integrator *.py
+recursive-include data *.json *.csv *.shp *.dbf *.shx *.prj
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+global-exclude .DS_Store
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *~
+global-exclude *.swp
+global-exclude *.swo
