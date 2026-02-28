@@ -1,0 +1,75 @@
+Metadata-Version: 2.4
+Name: cinei
+Version: 2.0.0
+Summary: Coupled and Integrated Emission Inventory for atmospheric research
+Home-page: https://github.com/Luyikeka/claude_cinei
+Author: Yijuan Zhang
+Author-email: yijuancham@gmail.com
+Keywords: emissions atmospheric-science climate CEDS MEIC inventory
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Scientific/Engineering :: Atmospheric Science
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: pandas>=1.3.0
+Requires-Dist: rioxarray>=0.11.0
+Requires-Dist: xarray>=0.20.0
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: geopandas>=0.10.0
+Requires-Dist: matplotlib>=3.5.0
+Requires-Dist: shapely>=1.8.0
+Requires-Dist: netcdf4>=1.5.0
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# CINEI - Coupled and Integrated Emission Inventory
+
+A Python package for integrating global and regional anthropogenic emission inventories.
+
+## Installation
+```bash
+pip install cinei
+```
+
+## Quick Start
+```python
+import cinei
+
+# Integrate CEDS and MEIC emissions
+cinei.emis_union(
+    ceds_dir='/path/to/ceds',
+    meic_dir='/path/to/meic',
+    save_dir='/path/to/output',
+    spec_ceds='SO2',
+    spec_meic='SO2',
+    mon='Jan',
+    mon_id=0,
+    mon_agg='01',
+    year='2017'
+)
+
+# Visualize results
+cinei.plot_emission_map('/path/to/output/file.nc', variable='sum')
+```
+
+## Citation
+
+Zhang, Y.: CINEI V1.1, https://doi.org/10.5281/zenodo.15000795, 2025.
+
+## Author
+
+Yijuan Zhang, University of Bremen / IUP
