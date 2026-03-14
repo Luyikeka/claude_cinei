@@ -462,3 +462,189 @@ def get_meic_info():
     print("  Citation:")
     print(f"    {MEIC_REGISTRY['citation']}")
     print("=" * 65)
+
+
+# ── MEIC filename species mapping ─────────────────────────────────────────────
+# Maps canonical species name → exact string used in MEIC filenames
+MEIC_SPECIES_FILENAME = {
+    "NOX":   "NOx",
+    "SO2":   "SO2",
+    "CO":    "CO",
+    "BC":    "BC",
+    "OC":    "OC",
+    "NH3":   "NH3",
+    "PM25":  "pm25",
+    "PM10":  "pm10",
+    # VOC speciated files use SAPRC99 or MOZART mechanism — not included here
+}
+
+MEIC_SECTORS = ["agriculture", "industry", "power", "residential", "transportation"]
+
+MEIC_MONTHS = {
+    1: "01",  2: "02",  3: "03",  4: "04",
+    5: "05",  6: "06",  7: "07",  8: "08",
+    9: "09", 10: "10", 11: "11", 12: "12",
+}
+
+
+def list_meic_filenames(year, species=None, months=None, sectors=None):
+    """
+    List expected MEIC filenames for given year, species, months, sectors.
+
+    Useful to verify your downloaded MEIC files match the expected naming.
+
+    Parameters
+    ----------
+    year : int or str
+        Target year, e.g. 2017
+    species : list of str, optional
+        Species list, e.g. ['NOx', 'SO2']. Default: all species.
+        Case-insensitive. Available: NOx, SO2, CO, BC, OC, NH3, PM2.5, PM10
+    months : list of int, optional
+        Month numbers 1-12. Default: all 12 months.
+        e.g. [1, 7] for January and July only.
+    sectors : list of str, optional
+        Sector names. Default: all 5 sectors.
+        Available: agriculture, industry, power, residential, transportation
+
+    Returns
+    -------
+    list of str
+        Expected MEIC filenames.
+
+    Examples
+    --------
+    >>> import cinei
+    >>> # List all expected files for 2017 NOx, January only
+    >>> cinei.list_meic_filenames(2017, species=['NOx'], months=[1])
+    ['2017_01_agriculture_NOx.nc',
+     '2017_01_industry_NOx.nc',
+     '2017_01_power_NOx.nc',
+     '2017_01_residential_NOx.nc',
+     '2017_01_transportation_NOx.nc']
+    """
+    if species is None:
+        sp_keys = list(MEIC_SPECIES_FILENAME.keys())
+    else:
+        sp_keys = _normalize_meic_species(species)
+
+    if months is None:
+        months = list(range(1, 13))
+
+    if sectors is None:
+        sectors = MEIC_SECTORS
+
+    # Validate months
+    invalid_months = [m for m in months if m not in range(1, 13)]
+    if invalid_months:
+        raise ValueError(
+            f"[CINEI] Invalid month numbers: {invalid_months}\n"
+            f"        Expected integers 1-12."
+        )
+
+    # Validate sectors
+    invalid_sectors = [s for s in sectors if s not in MEIC_SECTORS]
+    if invalid_sectors:
+        raise ValueError(
+            f"[CINEI] Invalid sectors: {invalid_sectors}\n"
+            f"        Available: {MEIC_SECTORS}"
+        )
+
+    filenames = []
+    for sp_key in sp_keys:
+        sp_str = MEIC_SPECIES_FILENAME[sp_key]
+        for mon in sorted(months):
+            mon_str = MEIC_MONTHS[mon]
+            for sector in sectors:
+                filenames.append(f"{year}_{mon_str}_{sector}_{sp_str}.nc")
+
+    return filenames
+
+
+def check_meic_files(meic_dir, year, species=None, months=None, sectors=None):
+    """
+    Check which expected MEIC files are present or missing in a directory.
+
+    Parameters
+    ----------
+    meic_dir : str
+        Path to directory containing MEIC NetCDF files.
+    year : int or str
+        Target year, e.g. 2017
+    species : list of str, optional
+        Species to check. Default: all species.
+    months : list of int, optional
+        Months 1-12 to check. Default: all 12 months.
+    sectors : list of str, optional
+        Sectors to check. Default: all 5 sectors.
+
+    Returns
+    -------
+    dict with keys 'found', 'missing'
+        Each value is a list of filenames.
+
+    Examples
+    --------
+    >>> import cinei
+    >>> result = cinei.check_meic_files(
+    ...     meic_dir='/work/bb1554/data/MEIC/2017',
+    ...     year=2017,
+    ...     species=['NOx', 'SO2'],
+    ...     months=[1, 7]
+    ... )
+    >>> print(result['missing'])
+    """
+    meic_dir = Path(meic_dir)
+    if not meic_dir.exists():
+        raise FileNotFoundError(
+            f"[CINEI] MEIC directory not found: {meic_dir}"
+        )
+
+    expected = list_meic_filenames(year, species, months, sectors)
+    found    = [f for f in expected if (meic_dir / f).exists()]
+    missing  = [f for f in expected if not (meic_dir / f).exists()]
+
+    print(f"[CINEI] MEIC file check: {meic_dir}")
+    print(f"[CINEI] Year    : {year}")
+    print(f"[CINEI] Species : {species if species else 'ALL'}")
+    print(f"[CINEI] Months  : {months if months else 'ALL (1-12)'}")
+    print(f"[CINEI] Sectors : {sectors if sectors else 'ALL'}")
+    print()
+    print(f"[CINEI] ✅ Found  : {len(found):>3} / {len(expected)} files")
+    print(f"[CINEI] ❌ Missing: {len(missing):>3} / {len(expected)} files")
+
+    if missing:
+        print(f"\n[CINEI] Missing files:")
+        for f in missing:
+            print(f"          {f}")
+
+    return {"found": found, "missing": missing}
+
+
+def _normalize_meic_species(species_list):
+    """Normalize user species input to canonical MEIC keys."""
+    # Reuse CEDS normalization but map to MEIC keys
+    alias = {
+        "NOX": "NOX", "NOX": "NOX", "NOx": "NOX",
+        "SO2": "SO2",
+        "CO":  "CO",
+        "BC":  "BC",
+        "OC":  "OC",
+        "NH3": "NH3",
+        "PM2.5": "PM25", "PM25": "PM25", "pm25": "PM25", "pm2.5": "PM25",
+        "PM10":  "PM10", "pm10": "PM10",
+    }
+    normalized = []
+    unrecognized = []
+    for sp in species_list:
+        key = alias.get(sp.strip(), alias.get(sp.strip().upper()))
+        if key and key in MEIC_SPECIES_FILENAME:
+            normalized.append(key)
+        else:
+            unrecognized.append(sp)
+    if unrecognized:
+        raise ValueError(
+            f"[CINEI] Unrecognized MEIC species: {unrecognized}\n"
+            f"        Available: {list(MEIC_SPECIES_FILENAME.keys())}"
+        )
+    return normalized

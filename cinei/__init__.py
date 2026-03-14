@@ -7,6 +7,8 @@ from .download import (
     list_ceds_species,
     download_meic_sample,
     get_meic_info,
+    list_meic_filenames,
+    check_meic_files,
 )
 
 __all__ = [
@@ -17,5 +19,7 @@ __all__ = [
     "list_ceds_species",
     "download_meic_sample",
     "get_meic_info",
+    "list_meic_filenames",
+    "check_meic_files",
     "__version__",
 ]
