@@ -648,3 +648,273 @@ def _normalize_meic_species(species_list):
             f"        Available: {list(MEIC_SPECIES_FILENAME.keys())}"
         )
     return normalized
+
+
+# ── HTAP Registry ─────────────────────────────────────────────────────────────
+HTAP_REGISTRY = {
+    "doi":         "https://doi.org/10.5281/zenodo.7516361",
+    "zenodo_id":   "7516361",
+    "version":     "HTAP v3",
+    "description": "HTAP v3 emission mosaic, 2000-2018, monthly, 0.1°/0.5°",
+    "citation": (
+        "Crippa, M. et al.: HTAP_v3 emission mosaic, "
+        "https://doi.org/10.5281/zenodo.7516361, 2023."
+    ),
+    "resolutions": ["01x01", "05x05"],
+    "types":       ["emissions", "fluxes"],
+    "species":     ["BC", "CO", "NH3", "NMVOC", "NOx", "OC", "PM10", "PM2.5", "SO2"],
+    # MD5 checksums from Zenodo
+    "files": {
+        # 0.1° emissions
+        ("01x01", "emissions", "BC"):    {"md5": "0c4fa152b6f98d36628fb0f3c30bcf56", "size": "8.3 GB"},
+        ("01x01", "emissions", "CO"):    {"md5": "5a6defc1d94418515d327eb0380d205a", "size": "7.8 GB"},
+        ("01x01", "emissions", "NH3"):   {"md5": "6ce68610f6d8c1ef965feeae231b35f5", "size": "10.1 GB"},
+        ("01x01", "emissions", "NMVOC"): {"md5": "93a103ff0bdafb3e7eb7f6babee43893", "size": "13.0 GB"},
+        ("01x01", "emissions", "NOx"):   {"md5": "ab5c26c62d44602dc31b1d23e662a28b", "size": "10.3 GB"},
+        ("01x01", "emissions", "OC"):    {"md5": "47c72ca7861fcdf1f6254ac7264f207b", "size": "8.5 GB"},
+        ("01x01", "emissions", "PM10"):  {"md5": "6e6e8122154d4b360f4c8c84be90e316", "size": "10.9 GB"},
+        ("01x01", "emissions", "PM2.5"): {"md5": "e87807a5be65ae516335573e713a84bc", "size": "10.9 GB"},
+        ("01x01", "emissions", "SO2"):   {"md5": "6eae0ad4f5855caeb75bcd70be72a329", "size": "7.7 GB"},
+        # 0.1° fluxes
+        ("01x01", "fluxes", "BC"):    {"md5": "f14029934cceb0f4f7e36e76ce6b4bf6", "size": "9.0 GB"},
+        ("01x01", "fluxes", "CO"):    {"md5": "ab4555583c19b89b168382f333d6c0ee", "size": "8.4 GB"},
+        ("01x01", "fluxes", "NH3"):   {"md5": "d0f037e2348a2c9868a81806e7e96ab2", "size": "10.9 GB"},
+        ("01x01", "fluxes", "NMVOC"): {"md5": "35c60639a4a4ea05f883a8312a1033c3", "size": "13.9 GB"},
+        ("01x01", "fluxes", "NOx"):   {"md5": "2716e831648553a4d01a9e8890ef781a", "size": "11.0 GB"},
+        ("01x01", "fluxes", "OC"):    {"md5": "b1efc20d00c91b8fd7cdda12f84de4c7", "size": "9.2 GB"},
+        ("01x01", "fluxes", "PM10"):  {"md5": "f5f2e47a616dced4451798633c3385bb", "size": "11.6 GB"},
+        ("01x01", "fluxes", "PM2.5"): {"md5": "e562373e2e80ed0ecda742832c7bc3b1", "size": "11.6 GB"},
+        ("01x01", "fluxes", "SO2"):   {"md5": "76a985fd05fb4a5ffb73cf187192d1cf", "size": "8.4 GB"},
+        # 0.5° emissions
+        ("05x05", "emissions", "BC"):    {"md5": "f45164efab4c8088974cde92b6f444ac", "size": "608 MB"},
+        ("05x05", "emissions", "CO"):    {"md5": "faaf48dde4edac0a214a0bfcf597811d", "size": "561 MB"},
+        ("05x05", "emissions", "NH3"):   {"md5": "122120b7799084e00b346fa6bfe5941f", "size": "689 MB"},
+        ("05x05", "emissions", "NMVOC"): {"md5": "66b03d57e9ddbe5226a9912072e2c626", "size": "839 MB"},
+        ("05x05", "emissions", "NOx"):   {"md5": "2243aae1710ad4fb2b9a457d250ac524", "size": "681 MB"},
+        ("05x05", "emissions", "OC"):    {"md5": "4fefd0a54b048b7f66b3a0558f3237d0", "size": "616 MB"},
+        ("05x05", "emissions", "PM10"):  {"md5": "b04afd121ea623dcd7ae86209fd3220c", "size": "744 MB"},
+        ("05x05", "emissions", "PM2.5"): {"md5": "66f8454eb79fb4056157976d0ab1e415", "size": "744 MB"},
+        ("05x05", "emissions", "SO2"):   {"md5": "d9c23549191f6bc559bc39886f890537", "size": "556 MB"},
+        # 0.5° fluxes
+        ("05x05", "fluxes", "BC"):    {"md5": "108d559ef838e237ce82c560b9aebe43", "size": "611 MB"},
+        ("05x05", "fluxes", "CO"):    {"md5": "551dd28dfdc634cbc29022cef507399e", "size": "563 MB"},
+        ("05x05", "fluxes", "NH3"):   {"md5": "46fd6667e5e879685af97ea97184dbcf", "size": "692 MB"},
+        ("05x05", "fluxes", "NMVOC"): {"md5": "69d99c9fb30066f4c1d1ed8cfa9d7273", "size": "842 MB"},
+        ("05x05", "fluxes", "NOx"):   {"md5": "ad6f4ea3fb8ccfe7dbb61d49cff59baa", "size": "683 MB"},
+        ("05x05", "fluxes", "OC"):    {"md5": "d8d8d010e8bf643e9a4df4281542b3d9", "size": "619 MB"},
+        ("05x05", "fluxes", "PM10"):  {"md5": "f5f2e47a616dced4451798633c3385bb", "size": "747 MB"},
+        ("05x05", "fluxes", "PM2.5"): {"md5": "5574c700d4601123e1c2c7dd1ce59550", "size": "746 MB"},
+        ("05x05", "fluxes", "SO2"):   {"md5": "694f18fb209bbf28fc4dfa3fc833737a", "size": "559 MB"},
+    },
+}
+
+# HTAP species name variants (user input → canonical filename)
+HTAP_SPECIES_VARIANTS = {
+    "BC":    ["BC", "bc"],
+    "CO":    ["CO", "co"],
+    "NH3":   ["NH3", "nh3"],
+    "NMVOC": ["NMVOC", "nmvoc", "VOC", "voc"],
+    "NOX":   ["NOx", "nox", "NOX"],
+    "OC":    ["OC", "oc"],
+    "PM10":  ["PM10", "pm10"],
+    "PM25":  ["PM2.5", "pm2.5", "PM25", "pm25"],
+    "SO2":   ["SO2", "so2"],
+}
+
+# Map canonical key → filename species string
+HTAP_SPECIES_FILENAME = {
+    "BC": "BC", "CO": "CO", "NH3": "NH3", "NMVOC": "NMVOC",
+    "NOX": "NOx", "OC": "OC", "PM10": "PM10", "PM25": "PM2.5", "SO2": "SO2",
+}
+
+
+def download_htap(save_dir, species=None, resolution="05x05",
+                  data_type="emissions", extract=True, keep_zip=False):
+    """
+    Download HTAP v3 gridded emission data from Zenodo.
+
+    Coverage: 2000-2018, monthly, 9 species, 16 sectors.
+    Each NetCDF file contains all 12 months and all sectors for one year.
+
+    Parameters
+    ----------
+    save_dir : str
+        Directory to save downloaded files.
+    species : list of str, optional
+        Species to download. Case-insensitive.
+        e.g. ['NOx', 'SO2'] or ['nox', 'so2'] or ['NOX', 'PM2.5']
+        Default: all 9 species.
+        Available: BC, CO, NH3, NMVOC, NOx, OC, PM10, PM2.5, SO2
+    resolution : str, optional
+        Spatial resolution. Options:
+        - '05x05' : 0.5° x 0.5° (~500-800 MB per species) [default]
+        - '01x01' : 0.1° x 0.1° (~8-13 GB per species)
+    data_type : str, optional
+        Data type. Options:
+        - 'emissions' : Mg/month  [default]
+        - 'fluxes'    : kg/m2/s
+    extract : bool, optional
+        If True, automatically unzip after download. Default True.
+    keep_zip : bool, optional
+        If True, keep .zip files after extraction. Default False.
+
+    Returns
+    -------
+    list of str
+        Paths to downloaded (and extracted) files/directories.
+
+    Examples
+    --------
+    >>> import cinei
+    >>> # Download NOx and SO2 at 0.5° resolution (recommended)
+    >>> cinei.download_htap(
+    ...     save_dir='/work/bb1554/data/HTAP',
+    ...     species=['NOx', 'SO2'],
+    ...     resolution='05x05'
+    ... )
+
+    >>> # Download all species at 0.1° (warning: very large ~90 GB)
+    >>> cinei.download_htap(
+    ...     save_dir='/work/bb1554/data/HTAP',
+    ...     resolution='01x01'
+    ... )
+    """
+    save_dir = Path(save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── Validate resolution ────────────────────────────────────────────
+    if resolution not in HTAP_REGISTRY["resolutions"]:
+        raise ValueError(
+            f"[CINEI] Invalid resolution: '{resolution}'\n"
+            f"        Available: {HTAP_REGISTRY['resolutions']}\n"
+            f"        Tip: use '05x05' (0.5°) to save disk space."
+        )
+
+    # ── Validate data_type ─────────────────────────────────────────────
+    if data_type not in HTAP_REGISTRY["types"]:
+        raise ValueError(
+            f"[CINEI] Invalid data_type: '{data_type}'\n"
+            f"        Available: {HTAP_REGISTRY['types']}"
+        )
+
+    # ── Normalize species ──────────────────────────────────────────────
+    if species is None:
+        sp_keys = list(HTAP_SPECIES_FILENAME.keys())
+    else:
+        sp_keys = _normalize_htap_species(species)
+
+    # ── Estimate total size ────────────────────────────────────────────
+    total_info = [
+        HTAP_REGISTRY["files"][(resolution, data_type, HTAP_SPECIES_FILENAME[k])]
+        for k in sp_keys
+    ]
+
+    print(f"[CINEI] HTAP v3 Download")
+    print(f"[CINEI] Source     : {HTAP_REGISTRY['doi']}")
+    print(f"[CINEI] Save to    : {save_dir}")
+    print(f"[CINEI] Resolution : {resolution.replace('x', '° x ')}°")
+    print(f"[CINEI] Data type  : {data_type} "
+          f"({'Mg/month' if data_type == 'emissions' else 'kg/m²/s'})")
+    print(f"[CINEI] Species    : {[HTAP_SPECIES_FILENAME[k] for k in sp_keys]}")
+    print(f"[CINEI] File sizes : "
+          f"{', '.join(i['size'] for i in total_info)}")
+    print()
+
+    downloaded = []
+    for sp_key in sp_keys:
+        sp_str  = HTAP_SPECIES_FILENAME[sp_key]
+        fname   = f"gridmaps_{resolution}_{data_type}_{sp_str}.zip"
+        url     = (f"https://zenodo.org/records/7516361/files/"
+                   f"{fname}?download=1")
+        zip_path = save_dir / fname
+        info    = HTAP_REGISTRY["files"][(resolution, data_type, sp_str)]
+
+        print(f"[CINEI] → {sp_str}  ({info['size']})")
+
+        # ── Download with resume ───────────────────────────────────────
+        _download_with_resume(url, zip_path)
+
+        # ── MD5 check ─────────────────────────────────────────────────
+        actual_md5 = _md5(zip_path)
+        if actual_md5 == info["md5"]:
+            print(f"[CINEI]   ✅ MD5 verified")
+        else:
+            print(f"[CINEI]   ⚠️  MD5 mismatch!")
+            print(f"[CINEI]      Expected : {info['md5']}")
+            print(f"[CINEI]      Got      : {actual_md5}")
+
+        # ── Extract ────────────────────────────────────────────────────
+        if extract:
+            import zipfile
+            out_subdir = save_dir / fname.replace(".zip", "")
+            out_subdir.mkdir(exist_ok=True)
+            print(f"[CINEI]   📂 Extracting to: {out_subdir.name}/")
+            with zipfile.ZipFile(zip_path, "r") as z:
+                z.extractall(out_subdir)
+            if not keep_zip:
+                os.remove(zip_path)
+            downloaded.append(str(out_subdir))
+        else:
+            downloaded.append(str(zip_path))
+
+    print(f"\n[CINEI] ✅ Done! {len(downloaded)} species downloaded.")
+    print(f"\n[CINEI] Citation:")
+    print(f"  {HTAP_REGISTRY['citation']}")
+    return downloaded
+
+
+def list_htap_files(resolution="05x05", data_type="emissions", species=None):
+    """
+    List available HTAP v3 files with sizes.
+
+    Parameters
+    ----------
+    resolution : str
+        '05x05' or '01x01'
+    data_type : str
+        'emissions' or 'fluxes'
+    species : list of str, optional
+        Filter by species. Default: all.
+
+    Examples
+    --------
+    >>> import cinei
+    >>> cinei.list_htap_files(resolution='05x05', data_type='emissions')
+    """
+    if species is None:
+        sp_keys = list(HTAP_SPECIES_FILENAME.keys())
+    else:
+        sp_keys = _normalize_htap_species(species)
+
+    res_label = resolution.replace("x", "° x ") + "°"
+    print(f"[CINEI] HTAP v3 — {res_label}  {data_type}")
+    print(f"[CINEI] {'Species':<10} {'Filename':<45} {'Size':>10}")
+    print(f"[CINEI] {'-'*65}")
+    for sp_key in sp_keys:
+        sp_str = HTAP_SPECIES_FILENAME[sp_key]
+        fname  = f"gridmaps_{resolution}_{data_type}_{sp_str}.zip"
+        info   = HTAP_REGISTRY["files"][(resolution, data_type, sp_str)]
+        print(f"[CINEI] {sp_str:<10} {fname:<45} {info['size']:>10}")
+
+
+def _normalize_htap_species(species_list):
+    """Normalize user species input to canonical HTAP keys."""
+    normalized = []
+    unrecognized = []
+    for sp in species_list:
+        sp_str = sp.strip()
+        matched = None
+        for key, variants in HTAP_SPECIES_VARIANTS.items():
+            if sp_str in variants or sp_str.upper() == key:
+                matched = key
+                break
+        if matched:
+            normalized.append(matched)
+        else:
+            unrecognized.append(sp)
+    if unrecognized:
+        raise ValueError(
+            f"[CINEI] Unrecognized HTAP species: {unrecognized}\n"
+            f"        Available: {HTAP_REGISTRY['species']}"
+        )
+    return normalized

@@ -9,17 +9,15 @@ from .download import (
     get_meic_info,
     list_meic_filenames,
     check_meic_files,
+    download_htap,
+    list_htap_files,
 )
 
 __all__ = [
-    "emis_union",
-    "ll_area",
-    "plot_emission_map",
-    "download_ceds",
-    "list_ceds_species",
-    "download_meic_sample",
-    "get_meic_info",
-    "list_meic_filenames",
-    "check_meic_files",
+    "emis_union", "ll_area", "plot_emission_map",
+    "download_ceds", "list_ceds_species",
+    "download_meic_sample", "get_meic_info",
+    "list_meic_filenames", "check_meic_files",
+    "download_htap", "list_htap_files",
     "__version__",
 ]
