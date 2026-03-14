@@ -918,3 +918,223 @@ def _normalize_htap_species(species_list):
             f"        Available: {HTAP_REGISTRY['species']}"
         )
     return normalized
+
+
+# ── EDGAR Registry ────────────────────────────────────────────────────────────
+EDGAR_REGISTRY = {
+    "base_url": (
+        "https://jeodpp.jrc.ec.europa.eu/ftp/jrc-opendata/EDGAR/datasets"
+    ),
+    "dataset":  "v81_FT2022_AP_new",
+    "version":  "v8.1",
+    "doi":      "https://edgar.jrc.ec.europa.eu/dataset_ap81",
+    "coverage": "1970-2022",
+    "resolution": "0.1° x 0.1°",
+    "description": (
+        "EDGAR v8.1 global air pollutant emissions, "
+        "monthly NetCDF, 0.1°, 1970-2022"
+    ),
+    "citation": (
+        "Crippa, M. et al.: EDGAR v8.1 Global Air Pollutant Emissions, "
+        "European Commission, Joint Research Centre (JRC), "
+        "https://edgar.jrc.ec.europa.eu/dataset_ap81, 2024."
+    ),
+    # Exact species strings used in EDGAR filenames
+    "species_filename": {
+        "BC":    "BC",
+        "CO":    "CO",
+        "NH3":   "NH3",
+        "NMVOC": "NMVOC",
+        "NOX":   "NOx",
+        "OC":    "OC",
+        "PM10":  "PM10",
+        "PM25":  "PM2.5",
+        "SO2":   "SO2",
+    },
+    # data_type → subfolder and file suffix
+    "types": {
+        "fluxes":    {"folder": "flx_nc", "suffix": "flx_nc"},   # kg/m2/s
+        "emissions": {"folder": "emi_nc", "suffix": "emi_nc"},   # Mg/month
+    },
+}
+
+# EDGAR species variants (case-insensitive user input → canonical key)
+EDGAR_SPECIES_VARIANTS = {
+    "BC":    ["BC", "bc"],
+    "CO":    ["CO", "co"],
+    "NH3":   ["NH3", "nh3"],
+    "NMVOC": ["NMVOC", "nmvoc", "VOC", "voc"],
+    "NOX":   ["NOx", "nox", "NOX"],
+    "OC":    ["OC", "oc"],
+    "PM10":  ["PM10", "pm10"],
+    "PM25":  ["PM2.5", "pm2.5", "PM25", "pm25"],
+    "SO2":   ["SO2", "so2"],
+}
+
+
+def download_edgar(save_dir, species=None, years=None,
+                   data_type="fluxes", extract=True, keep_zip=False):
+    """
+    Download EDGAR v8.1 gridded air pollutant emission data from JRC FTP.
+
+    Coverage: 1970-2022, monthly, 0.1° x 0.1° resolution, 9 species.
+    Each NetCDF file contains one year with 12 months and all sectors.
+
+    Parameters
+    ----------
+    save_dir : str
+        Directory to save downloaded files.
+    species : list of str, optional
+        Species to download. Case-insensitive.
+        e.g. ['NOx', 'SO2'] or ['nox', 'so2'] or ['PM2.5']
+        Default: all 9 species.
+        Available: BC, CO, NH3, NMVOC, NOx, OC, PM10, PM2.5, SO2
+    years : list of int, optional
+        Years to download. Range: 1970-2022.
+        e.g. [2015, 2016, 2017] or list(range(2010, 2018))
+        Default: [2017]  (single year)
+    data_type : str, optional
+        Data type. Options:
+        - 'fluxes'    : kg/m2/s  [default]
+        - 'emissions' : Mg/month
+    extract : bool, optional
+        If True, automatically unzip after download. Default True.
+    keep_zip : bool, optional
+        If True, keep .zip files after extraction. Default False.
+
+    Returns
+    -------
+    list of str
+        Paths to downloaded (and extracted) files.
+
+    Examples
+    --------
+    >>> import cinei
+    >>> # Download NOx and SO2 for 2017
+    >>> cinei.download_edgar(
+    ...     save_dir='/work/bb1554/data/EDGAR',
+    ...     species=['NOx', 'SO2'],
+    ...     years=[2017]
+    ... )
+
+    >>> # Download all species for 2015-2017
+    >>> cinei.download_edgar(
+    ...     save_dir='/work/bb1554/data/EDGAR',
+    ...     years=list(range(2015, 2018))
+    ... )
+    """
+    save_dir = Path(save_dir)
+    save_dir.mkdir(parents=True, exist_ok=True)
+
+    # ── Defaults ──────────────────────────────────────────────────────
+    if years is None:
+        years = [2017]
+    if species is None:
+        sp_keys = list(EDGAR_REGISTRY["species_filename"].keys())
+    else:
+        sp_keys = _normalize_edgar_species(species)
+
+    # ── Validate data_type ─────────────────────────────────────────────
+    if data_type not in EDGAR_REGISTRY["types"]:
+        raise ValueError(
+            f"[CINEI] Invalid data_type: '{data_type}'\n"
+            f"        Available: {list(EDGAR_REGISTRY['types'].keys())}"
+        )
+
+    # ── Validate years ─────────────────────────────────────────────────
+    invalid_years = [y for y in years if not (1970 <= y <= 2022)]
+    if invalid_years:
+        raise ValueError(
+            f"[CINEI] Invalid years: {invalid_years}\n"
+            f"        EDGAR v8.1 coverage: 1970-2022"
+        )
+
+    type_info = EDGAR_REGISTRY["types"][data_type]
+    unit = "kg/m²/s" if data_type == "fluxes" else "Mg/month"
+
+    print(f"[CINEI] EDGAR v8.1 Download")
+    print(f"[CINEI] Source     : {EDGAR_REGISTRY['doi']}")
+    print(f"[CINEI] Save to    : {save_dir}")
+    print(f"[CINEI] Resolution : {EDGAR_REGISTRY['resolution']}")
+    print(f"[CINEI] Data type  : {data_type} ({unit})")
+    print(f"[CINEI] Species    : "
+          f"{[EDGAR_REGISTRY['species_filename'][k] for k in sp_keys]}")
+    print(f"[CINEI] Years      : {years}")
+    print(f"[CINEI] Files      : {len(sp_keys) * len(years)} total")
+    print()
+
+    downloaded = []
+    for sp_key in sp_keys:
+        sp_str = EDGAR_REGISTRY["species_filename"][sp_key]
+        for year in sorted(years):
+            fname = (
+                f"v8.1_FT2022_AP_{sp_str}_{year}"
+                f"_TOTALS_{type_info['suffix']}.zip"
+            )
+            url = (
+                f"{EDGAR_REGISTRY['base_url']}/"
+                f"{EDGAR_REGISTRY['dataset']}/"
+                f"{sp_str}/TOTALS/{type_info['folder']}/{fname}"
+            )
+            zip_path = save_dir / fname
+
+            print(f"[CINEI] → {sp_str}  {year}")
+
+            # ── Download with resume ───────────────────────────────────
+            _download_with_resume(url, zip_path)
+
+            # ── Extract ────────────────────────────────────────────────
+            if extract:
+                import zipfile
+                out_subdir = save_dir / fname.replace(".zip", "")
+                out_subdir.mkdir(exist_ok=True)
+                print(f"[CINEI]   📂 Extracting to: {out_subdir.name}/")
+                with zipfile.ZipFile(zip_path, "r") as z:
+                    z.extractall(out_subdir)
+                if not keep_zip:
+                    os.remove(zip_path)
+                downloaded.append(str(out_subdir))
+            else:
+                downloaded.append(str(zip_path))
+
+    print(f"\n[CINEI] ✅ Done! {len(downloaded)} file(s) downloaded.")
+    print(f"\n[CINEI] Citation:")
+    print(f"  {EDGAR_REGISTRY['citation']}")
+    return downloaded
+
+
+def list_edgar_species():
+    """Print available EDGAR v8.1 species."""
+    print("[CINEI] Available EDGAR v8.1 species (case-insensitive):")
+    print(f"  {'Input':<10} → {'Filename':<10}  Coverage")
+    print(f"  {'-'*45}")
+    for key, fname in EDGAR_REGISTRY["species_filename"].items():
+        variants = EDGAR_SPECIES_VARIANTS.get(key, [])
+        print(f"  {fname:<10}   also accepted: "
+              f"{[v for v in variants if v != fname]}")
+    print(f"\n  Year coverage : {EDGAR_REGISTRY['coverage']}")
+    print(f"  Resolution    : {EDGAR_REGISTRY['resolution']}")
+
+
+def _normalize_edgar_species(species_list):
+    """Normalize user species input to canonical EDGAR keys."""
+    normalized = []
+    unrecognized = []
+    for sp in species_list:
+        sp_str = sp.strip()
+        matched = None
+        for key, variants in EDGAR_SPECIES_VARIANTS.items():
+            if sp_str in variants or sp_str.upper() == key:
+                matched = key
+                break
+        if matched:
+            normalized.append(matched)
+        else:
+            unrecognized.append(sp)
+    if unrecognized:
+        raise ValueError(
+            f"[CINEI] Unrecognized EDGAR species: {unrecognized}\n"
+            f"        Available: {list(EDGAR_REGISTRY['species_filename'].keys())}\n"
+            f"        Call cinei.list_edgar_species() to see all options."
+        )
+    return normalized
